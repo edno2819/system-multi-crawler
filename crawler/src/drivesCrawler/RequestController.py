@@ -15,7 +15,7 @@ class RequestController(ABC):
         self.request = request
         self.storage = storage
         self.folder_path = self.getPathFile()
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger(self.__class__.__name__)
         self.report = Report(site_id)
         self.config = config
 

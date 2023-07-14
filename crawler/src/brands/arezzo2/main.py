@@ -1,7 +1,7 @@
 from src.drivesCrawler.RequestController import RequestController
 
 
-class Arezzo(RequestController):
+class Arezzo2(RequestController):
     CATEGORYS = ["BOLSAS", "SAPATOS"]
     BASE_URL = "https://www.arezzo.com.br"
 

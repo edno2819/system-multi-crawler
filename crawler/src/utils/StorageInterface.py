@@ -25,5 +25,6 @@ class StorageInterface:
                 f.write(file)
         else:
             self.driver.upload_object(
-                file, self.driver.get_container(self.BUCKET), object_name
+                file, self.driver.get_container(self.BUCKET), 
+                object_name
             )

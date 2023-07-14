@@ -1,2 +1,4 @@
 bucket
 venv
+.logs
+*__pycache__

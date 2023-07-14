@@ -5,8 +5,6 @@ gerar json
 flower
 
 FAZER:
-    1 - Criar logs
-    4 - Arquivo de configração
     2 - Salvar no banco de dados
     3 - Criar tabela no Djngo
     4 - Enviar no discord

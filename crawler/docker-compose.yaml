@@ -1,0 +1,64 @@
+version: '3'
+
+services:
+  # server:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: ["python", "server.py"]
+  #   ports:
+  #     - 5000:5000
+  #   volumes:
+  #     - .:/app
+  #     - app-data:/app/data
+  #   depends_on:
+  #     - redis
+
+  # celery:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+  #   volumes:
+  #     - app-data:/app/data
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     - CELERY_BROKER_URL=redis://redis:6379/0
+      
+  redis:
+    image: redis
+    ports:
+    - 6379:6379
+    
+  flower:
+    image: mher/flower:0.9.7
+    command: ['flower', '--broker=redis://redis:6379', '--port=5555']
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+  db:
+    image: mysql:8.0.30
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - app-data:/var/mysql
+    networks:
+      - mynetwork
+    env_file:
+      - .env
+
+networks:
+  mynetwork:
+
+volumes:
+  app-data:
