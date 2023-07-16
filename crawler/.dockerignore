@@ -1,3 +1,5 @@
 venv
 bucket
 .logs
+*__pycache__
+data

@@ -20,12 +20,13 @@ class Crawler(Base):
     __tablename__ = 'crawler'
     id = Column(Integer, primary_key=True)
     site_id = Column(Integer, ForeignKey('site.id'), nullable=False)
-    site = relationship("Site")
     started_at = Column(DateTime, default=datetime.datetime.now, nullable=False)
     finished_at = Column(DateTime, nullable=False)
     categories = Column(Integer, default=0, nullable=False)
     products = Column(Integer, default=0, nullable=False)
     errors = Column(JSON, nullable=True)
+    
+    site = relationship("Site")
 
     def __repr__(self):
         return f'{self.site_id} - {self.started_at}'

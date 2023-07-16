@@ -5,11 +5,10 @@ class Arezzo(RequestController):
     CATEGORYS = ["BOLSAS", "SAPATOS"]
     BASE_URL = "https://www.arezzo.com.br"
 
-    def __init__(self, config, request, storage, site_id) -> None:
-        super().__init__(config, request, storage, site_id)
+    def __init__(self, config, site_id) -> None:
+        super().__init__(config, site_id)
         self.size = 3
         self.max_itens = 2 * self.size
-
 
     def getUrl(self, category, page):
         base_api = "/arezzocoocc/v2/arezzo/products"
@@ -17,7 +16,7 @@ class Arezzo(RequestController):
         return self.BASE_URL + base_api + url
 
     def run(self):
-        self.log.debug(f'Init crawler in {self.__class__.__name__}')
+        self.log.debug(f"Init crawler in {self.__class__.__name__}")
 
         for category in self.CATEGORYS:
             self.report.add_categories()
@@ -27,7 +26,7 @@ class Arezzo(RequestController):
 
                 self.saveJson(res, self.folder_path)
                 data = res.json()
-                for product in data["products"]:  
+                for product in data["products"]:
                     self.log.info(f'Crawler product {product.get("name")}')
                     url_product = product.get("url")
                     url = self.BASE_URL + url_product
@@ -37,8 +36,7 @@ class Arezzo(RequestController):
                         self.report.add_products()
                     except Exception as e:
                         self.getError(e, url)
-                        
+
     def getProducts(self, url: str, path_product: str):
         res = self.request.send_request(url)
         self.saveHTML(res, path_product)
-

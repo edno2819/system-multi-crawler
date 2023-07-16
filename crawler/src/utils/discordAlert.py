@@ -1,30 +1,10 @@
-import discord
+from discord import SyncWebhook
 import logging
+import os
 
-intents = discord.Intents.default()
-intents.messages = True
-client = discord.Client(intents=intents)
+log = logging.getLogger(__name__)
 
+webhook = SyncWebhook.from_url(os.getenv("WEBHOOK_URL"))
 
-class DiscordAlert:
-    def __init__(self, server, channel, token):
-        self.client = client
-        self.client.run(token)
-        self.server = server
-        self.channel = channel
-        self.token = token
-        self.log = logging.getLogger(self.__class__.__name__)
-
-
-    @client.event
-    async def on_ready(self, msg):
-        self.log.debug(f"Send report to {self.server}")
-        for guild in client.guilds:
-            if guild.name == self.server:
-                break
-
-        for channel in guild.channels:
-            if channel.name == self.channel:
-                break
-
-        await channel.send(msg)
+def sendMsg(message):
+    webhook.send(message)

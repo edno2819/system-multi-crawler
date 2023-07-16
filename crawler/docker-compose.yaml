@@ -1,36 +1,51 @@
 version: '3'
 
 services:
-  # server:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   command: ["python", "server.py"]
-  #   ports:
-  #     - 5000:5000
-  #   volumes:
-  #     - .:/app
-  #     - app-data:/app/data
-  #   depends_on:
-  #     - redis
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "server.py"]
+    environment:
+      DB_HOST: 'database'
+    ports:
+      - 5000:5000
+    volumes:
+      - data-umode:/app/data
+    depends_on:
+      - redis
+      - database
+    env_file:
+      - .env
+    networks:
+      mynetwork:
 
-  # celery:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
-  #   volumes:
-  #     - app-data:/app/data
-  #   depends_on:
-  #     - redis
-  #   environment:
-  #     - CELERY_BROKER_URL=redis://redis:6379/0
       
+  celery:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+    volumes:
+      - data-umode:/app/data
+    depends_on:
+      - redis
+      - database
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DB_HOST=database
+    env_file:
+      - .env
+    networks:
+      mynetwork:
+
   redis:
     image: redis
     ports:
     - 6379:6379
-    
+    networks:
+      mynetwork:
+
   flower:
     image: mher/flower:0.9.7
     command: ['flower', '--broker=redis://redis:6379', '--port=5555']
@@ -38,7 +53,11 @@ services:
       - 5555:5555
     depends_on:
       - redis
-  db:
+    networks:
+      mynetwork:
+
+      
+  database:
     image: mysql:8.0.30
     restart: always
     environment:
@@ -51,14 +70,19 @@ services:
     expose:
       - '3306'
     volumes:
-      - app-data:/var/mysql
-    networks:
-      - mynetwork
+      - data-umode:/var/lib/mysql
     env_file:
       - .env
+    networks:
+      mynetwork:
 
 networks:
   mynetwork:
 
 volumes:
-  app-data:
+  data-umode:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${USER}/crawler

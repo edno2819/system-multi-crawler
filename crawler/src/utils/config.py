@@ -39,6 +39,7 @@ def setup_logging():
         )
     )
     # Adicionar filtro no logging
+    
     root_logger = logging.getLogger()
     for handler in root_logger.handlers:
         handler.addFilter(libs_filter)

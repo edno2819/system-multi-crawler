@@ -5,7 +5,7 @@ JAZZMIN_SETTINGS = {
     "site_header": "Umode Crawler",
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
     "site_brand": "Umode Crawler",
-    #"site_logo": "imagens/logo-umode-azul.webp",
+    # "site_logo": "imagens/logo-umode-azul.webp",
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": "imagens/logo-umode-azul.webp",
     # Logo to use for login form in dark themes (defaults to login_logo)
@@ -56,7 +56,7 @@ JAZZMIN_SETTINGS = {
     # Whether to aut expand the menu
     "navigation_expanded": True,
     # Hide these apps when generating side menu e.g (auth)
-    "hide_apps": ["django_summernote"],
+    "hide_apps": [],
     # Hide these models when generating side menu (e.g auth.user)
     "hide_models": [
         "django_celery_beat.SolarSchedule",
@@ -64,14 +64,8 @@ JAZZMIN_SETTINGS = {
     ],
     # List of apps (and/or models) to base side menu ordering off of (does not need to contain all apps/models)
     "order_with_respect_to": [
-        "auth",
-        "user",
-        "user.Users",
-        "user.SubscriptionPrograms",
-        "programs",
-        "program.Programs",
-        "program.Levels",
-        "program.Contents",
+        "crawler.Site",
+        "crawler.Crawler",
     ],
     # Custom links to append to app groups, keyed on app name
     "custom_links": {
@@ -92,7 +86,8 @@ JAZZMIN_SETTINGS = {
         "auth.Group": "fas fa-users",
         "user.Users": "fa fa-user",
         "user.SubscriptionPrograms": "fa fa-clipboard",  # <i class="fa-sharp fa-solid fa-person-digging"></i>
-        # "program.Programs": "fa fa-computer",
+        "crawler.Site": "fas fa-copyright",
+        "crawler.Crawler": "fas fa-spider",
         # "program.Contents": "fa fa-info",
         # "program.Levels": "fa fa-text",
         # "program.ContentType": "fa fa-ladder",

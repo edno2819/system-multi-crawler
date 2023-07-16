@@ -12,3 +12,5 @@ celery -A tasks worker --loglevel=info
 
 
 python server.py
+
+docker exec -i -t 14160c120fe5 /bin/bash

@@ -5,7 +5,7 @@ import os
 
 
 class StorageInterface:
-    BUCKET = "bucket"
+    BUCKET = "./data/bucket"
 
     def __init__(self, id, key):
         self.local = bool(os.getenv("STORAGE_LOCAL", "True"))

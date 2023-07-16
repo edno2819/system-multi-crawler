@@ -1,19 +1,22 @@
-from abc import ABC, abstractmethod
+from src.utils.requests import RequestInterface
+from src.utils.StorageInterface import StorageInterface
 from src.utils.folder import format_folder_name
 from src.utils.report import Report
+from abc import ABC, abstractmethod
 from datetime import datetime
 import traceback
 import logging
 import time
 import os
 
-
 class RequestController(ABC):
     CURRENT_URL = ""
 
-    def __init__(self, config, request, storage, site_id):
-        self.request = request
-        self.storage = storage
+    def __init__(self, config,  site_id):
+        self.request = RequestInterface()
+        self.storage =  StorageInterface(
+        os.getenv("STORAGE_ID", ""), os.getenv("STORAGE_KEY", "")
+    )
         self.folder_path = self.getPathFile()
         self.log = logging.getLogger(self.__class__.__name__)
         self.report = Report(site_id)
@@ -48,7 +51,7 @@ class RequestController(ABC):
         pass
 
     def getReport(self) -> str:
-        return self.report.to_json()
+        return self.report.getReport()
 
     def getError(self, e, url) -> str:
         error_message = str(e)

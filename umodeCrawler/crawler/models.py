@@ -20,6 +20,7 @@ class Crawler(models.Model):
         on_delete=models.DO_NOTHING,
         blank=False,
         null=False,
+        db_column='site_id'
     )
     started_at = models.DateTimeField(default=datetime.datetime.now)
     finished_at = models.DateTimeField(null=False, blank=False)
@@ -29,8 +30,8 @@ class Crawler(models.Model):
     
     class Meta:
         db_table = 'crawler'
-        verbose_name = "Crawler Execução"
-        verbose_name_plural = "Crawler Execuções"
+        verbose_name = "Crawler"
+        verbose_name_plural = "Crawlers"
 
         
     def __str__(self):
