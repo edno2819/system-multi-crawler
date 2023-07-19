@@ -1,18 +1,43 @@
-SQLAlqmy
-logs
-celery
-gerar json
-flower
+# Sistema de Crawler
 
-FAZER:
-    2 - Salvar no banco de dados
-    3 - Criar tabela no Djngo
-    4 - Enviar no discord
+* SQLAlqmy
+* logs
+* celery
+* libcloud
+* Flask
 
+## Estrutura de Pastas
+Dentro da pasta onde for configurado para salvar os arquivos
 
-Eu não criei subpastas de produtos pq eu teria que aceitar como o site classifica seus produtos
-e acho que seria mais interresante utilizar a classificação da Umode. Então depois do script
-de parse das informação do html, pode utilizar alguma lógica interna para determinar a categoria, 
-e o propio html tem informações de promoção, beestSeller, e categoria.
+### Iniciar sistema direto
+Para iniciar o crawler diretamente.
 
-folder/arezzo/25-03-23/produto_name/ html e json
+```bash
+    python main.py
+```
+Ele ira rodar os crawlers um de cada vez conforme os sites dentro do arquivo de configuração .yaml
+
+### Para adicionar um novo site de crawler
+- Crie uma pasta dentro de "src/brands/nome-do-site"
+- Crie os arquivos:
+    * `__init__.py`
+    * main.py
+    * config.yaml
+        - Configurações individuais para cada site
+    * info.md
+        - Opcional: Anotações sobre a estratégia para crawlear cada site
+
+Dentro do arquivo `main.py` deve haver uma classe nesse estilo
+
+```python
+class NomeDoSite(RequestController):
+
+    def __init__(self, database: DatabaseManager, config: dict, site_id: str):
+        super().__init__(database, config, site_id)
+
+    def run(self): pass
+```
+Deve herdar da classe `RequestController`, no qual implementa a base para algumas funcionalidades comuns do crawler usando request. E deve implementar o método `run`, no qual vai executar a lógica do crawler.
+
+### Carregamento do módulo de cada Site
+Cada execução da função `task` dentro do arquivo `task.py`, carrega os módulos de crawler para cada site dinamicamente através da função `load_class_brand`; por isso, é importante seguir o padrão de criação de novas extrações.

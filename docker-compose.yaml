@@ -1,0 +1,106 @@
+version: '3'
+
+services:
+  server:
+    build:
+      context: ./crawler
+      dockerfile: Dockerfile
+    command: ["python", "server.py"]
+    restart: on-failure
+    environment:
+      DB_HOST: 'database'
+    ports:
+      - 5000:5000
+    volumes:
+      - data-umode:/app/data
+    depends_on:
+      - redis
+      - database
+    env_file:
+      - ./crawler/.env
+    networks:
+      mynetwork:
+
+  celery:
+    build:
+      context: ./crawler
+      dockerfile: Dockerfile
+    command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
+    restart: on-failure
+    volumes:
+      - data-umode:/app/data
+    depends_on:
+      - redis
+      - database
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - DB_HOST=database
+    env_file:
+      - ./crawler/.env
+    networks:
+      mynetwork:
+
+  redis:
+    image: redis
+    ports:
+    - 6379:6379
+    networks:
+      mynetwork:
+
+  flower:
+    image: mher/flower:0.9.7
+    command: ['flower', '--broker=redis://redis:6379', '--port=5555']
+    ports:
+      - 5555:5555
+    depends_on:
+      - redis
+    networks:
+      mynetwork:
+
+      
+  database:
+    image: mysql:8.0.30
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db:/var/lib/mysql
+    env_file:
+      - ./crawler/.env
+    networks:
+      mynetwork:
+  
+  web:
+    build: ./umodeCrawler
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - database
+    env_file:
+      - ./umodeCrawler/.env
+    networks:
+      mynetwork:
+    restart: 
+      on-failure
+
+networks:
+  mynetwork:
+
+volumes:
+  data-umode:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/${USER}/crawler
+  my-db:
