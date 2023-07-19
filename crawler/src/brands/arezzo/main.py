@@ -7,8 +7,8 @@ import json
 
 class Arezzo(RequestController):
     CATEGORYS = [
-        "SAPATOS",
         "BOLSAS",
+        "SAPATOS",
     ]
     BASE_URL = "https://www.arezzo.com.br"
 
@@ -29,6 +29,7 @@ class Arezzo(RequestController):
             self.category = self.database.create_category_if_not_exists(
                 category.lower()
             )
+            self.current_category = category
             self.report.add_categories()
 
             for page in range(0, self.max_itens):
@@ -36,8 +37,8 @@ class Arezzo(RequestController):
                 res = self.request.send_request(url)
                 self.saveJson(res.content, self.folder_path)
                 data = res.json()
-                
-                if data["products"]==[]:
+
+                if data["products"] == []:
                     break
 
                 for product in data["products"]:
@@ -80,9 +81,13 @@ class Arezzo(RequestController):
 
     def createItensFromJson(self, data):
         product = self.saveProduct(data)
-        self.setImage(data, product.id)
-        self.setPrice(data, product.id)
-        self.setSize(data, product.id)
+        self.getImage(data, product.id)
+        self.getPrice(data, product.id)
+        if self.current_category == ["SAPATOS"]:
+            self.getSizeShoe(data, product.id)
+        else:
+            self.getSizeBag(data, product.id)
+
         self.database.session.commit()
 
     def saveProduct(self, data):
@@ -129,34 +134,34 @@ class Arezzo(RequestController):
                 )
                 self.database.session.add(product_attribute)
 
-    def setImage(self, data, product_id):
+    def getImage(self, data, product_id):
         image = data.get("image")
         if image:
             self.saveImage(image, self.current_path_product)
             picture_metadata = PictureMetadata(product_id=product_id, picture_url=image)
             self.database.session.add(picture_metadata)
 
-    def setPrice(self, data, product_id):
+    def getPrice(self, data, product_id):
         offers = data.get("offers")
         if offers:
             offer = offers[0]
-            price = offer.get("price")
+            price = offer.get("price", 0)
             promotional_price = 0  # offer.get("discountPrice").get("value")
             crawled_at = self.crawler_date
 
             product_price = ProductPrice(
                 product_id=product_id,
-                price=price,
+                price=round(float(price), 3),
                 promotional_price=promotional_price,
                 crawled_at=crawled_at,
             )
             self.database.session.add(product_price)
 
-    def setSize(self, data, product_id):
+    def getSizeShoe(self, data, product_id):
         sizes = data.get("offers")
         if sizes:
             for size_data in sizes:
-                size = size_data.get("sku").split("-")[1]
+                size = size_data.get("sku", "-Out").split("-")[1]
                 if size_data.get("availability").find("Out") == -1:
                     stock = 0
                 else:
@@ -166,3 +171,14 @@ class Arezzo(RequestController):
                     product_id=product_id, size=size, stock=stock, crawled_at=crawled_at
                 )
                 self.database.session.add(product_size)
+
+    def getSizeBag(self, data, product_id):
+        sizes = data.get("offers")
+        if sizes and len(sizes) > 1:
+            size = 1
+            stock = sizes[1].get("offerCount", 0)
+            crawled_at = self.crawler_date
+            product_size = ProductSizes(
+                product_id=product_id, size=size, stock=stock, crawled_at=crawled_at
+            )
+            self.database.session.add(product_size)

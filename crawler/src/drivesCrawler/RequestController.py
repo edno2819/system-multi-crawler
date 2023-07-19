@@ -9,7 +9,6 @@ import traceback
 import logging
 import time
 import os
-import re
 
 
 class RequestController(ABC):
