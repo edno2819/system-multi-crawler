@@ -47,3 +47,8 @@ No admin você pode clicar em "Ir para o Flowers" para abrir a página de acompa
 <p align="center">
 <img style="border-radius: 5px"  src="./images/flowers.png" alt="Intro">
 </p>
+
+### Esboço da arquitetura completa do sistema
+<p align="center">
+<img style="border-radius: 5px"  src="./images/system.png" alt="Intro">
+</p>
