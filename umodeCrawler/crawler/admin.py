@@ -17,7 +17,7 @@ class SiteAdmin(admin.ModelAdmin):
     def enviar_requisicao_post(self, request, queryset):
         sites = list(queryset.values_list('name', flat=True))
         
-        url = 'http://127.0.0.1:5000/crawler'
+        url = 'http://server:5000/crawler'
         response = requests.post(url, json={"sites": sites})
 
         if response.status_code == 200:

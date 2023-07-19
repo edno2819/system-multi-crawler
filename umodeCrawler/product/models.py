@@ -9,12 +9,12 @@ class Category(models.Model):
         db_table = "categories"
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 
 class Product(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=64, null=False, blank=True)
+    name = models.CharField(max_length=255, null=False, blank=True)
     site_id = models.ForeignKey(
         "crawler.Site",
         on_delete=models.CASCADE,
@@ -23,17 +23,16 @@ class Product(models.Model):
         db_column="site_id",
     )
     sku = models.CharField(max_length=512)
-    name = models.CharField(max_length=255)
     category = models.ForeignKey(
         Category,
         on_delete=models.DO_NOTHING,
         blank=True,
         null=True,
-        db_column="categories",
+        db_column="category_id",
     )
     color = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
-    color = models.CharField(max_length=32)
+    color = models.CharField(max_length=32, blank=True, null=True)
     uri = models.URLField(max_length=255)
     crawler_date = models.DateField(max_length=255)
     metadata = models.JSONField(max_length=1024, blank=True, null=True)
@@ -42,7 +41,7 @@ class Product(models.Model):
         db_table = "products"
 
     def __str__(self):
-        return self.name
+        return f"{self.name}"
 
 
 class SubCategory(models.Model):
@@ -87,14 +86,14 @@ class ProductPrice(models.Model):
     id = models.AutoField(primary_key=True)
     product_id = models.ForeignKey(
         Product,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         blank=False,
         null=False,
         db_column="product_id",
     )
-    price = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=7, decimal_places=2, null=True, blank=True)
     promotional_price = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, blank=True
+        max_digits=7, decimal_places=2, null=True, blank=True
     )
     crawled_at = models.DateField(null=True, blank=True)
 
@@ -102,7 +101,7 @@ class ProductPrice(models.Model):
         db_table = "products_price"
 
     def __str__(self):
-        return self.product_id
+        return str(self.product_id)
 
 
 class Attribute(models.Model):
@@ -113,7 +112,7 @@ class Attribute(models.Model):
         db_table = "attribute"
 
     def __str__(self):
-        return self.nome
+        return str(self.nome)
 
 
 class ProductAttributes(models.Model):
@@ -138,7 +137,7 @@ class ProductAttributes(models.Model):
         db_table = "products_attributes"
 
     def __str__(self):
-        return self.attribute_id
+        return str(self.attribute_id)
 
 
 class PictureMetadata(models.Model):
@@ -157,4 +156,4 @@ class PictureMetadata(models.Model):
         db_table = "pictures_metadata"
 
     def __str__(self):
-        return self.product_id
+        return str(self.product_id)

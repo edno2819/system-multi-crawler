@@ -1,13 +1,16 @@
 from django.contrib import admin
 from .models import *
+from django.utils.html import format_html
 
 
 class ProductSizesInline(admin.StackedInline):
+    readonly_fields=('crawled_at', 'size', 'stock')
     model = ProductSizes
     extra = 1
 
 
 class ProductPriceInline(admin.StackedInline):
+    readonly_fields=('crawled_at', 'price', 'promotional_price')
     model = ProductPrice
     extra = 1
 
@@ -18,13 +21,15 @@ class ProductAttributesInline(admin.StackedInline):
 
 
 class PictureMetadataInline(admin.StackedInline):
+    readonly_fields=('picture_url', 'metadata')
     model = PictureMetadata
     extra = 1
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "site_id", "sku", "color", "uri", "crawler_date"]
+    readonly_fields=('site_id', 'crawler_date')
+    list_display = ["name", "site_id", "color", "uri", "crawler_date", "display_picture"]
     inlines = [
         ProductSizesInline,
         ProductPriceInline,
@@ -32,6 +37,13 @@ class ProductAdmin(admin.ModelAdmin):
         PictureMetadataInline,
     ]
     list_filter = ["name", "color"]
+    
+    def display_picture(self, obj):
+        picture = obj.picturemetadata_set.first()
+        if picture:
+            return format_html('<img src="{}" width="60" height="60" />', picture.picture_url)
+        return 'No Image'
+    display_picture.short_description = 'Picture'
 
 
 @admin.register(Category)

@@ -3,6 +3,10 @@ from umodeCrawler.adminUI import *
 from dotenv import load_dotenv
 import os
 
+SUPERUSER_USERNAME = os.getenv('DJANGO_SUPERUSER_USERNAME')
+SUPERUSER_PASSWORD = os.getenv('DJANGO_SUPERUSER_PASSWORD')
+SUPERUSER_EMAIL = os.getenv('DJANGO_SUPERUSER_EMAIL', 'admin@example.com')
+
 
 load_dotenv()
 config_env = os.environ
@@ -28,7 +32,7 @@ SECRET_KEY = "django-insecure-)-5z+eerzt*-azz+p2=f1!vr#d5rxl+_&n5!cfs8n+3sr$k_%+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if config_env.get("DEBUG") != "false" else False
 
-ALLOWED_HOSTS = [config_env.get("ALLOWED_HOSTS"), "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [config_env.get("ALLOWED_HOSTS"), "localhost", "127.0.0.1", "0.0.0.0"]
 
 
 # Application definition
