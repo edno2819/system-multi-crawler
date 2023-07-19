@@ -1,23 +1,18 @@
+# Use a imagem oficial do Python 3.8 como base
 FROM python:3.10
 
-ENV DJANGO_SUPERUSER_USERNAME=admin
-ENV DJANGO_SUPERUSER_PASSWORD=123456
-ENV DJANGO_SUPERUSER_EMAIL=admin@example.com
+WORKDIR /usr/src/app
 
-# Instale as dependências do seu projeto Django
-RUN pip install django
+# set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
+# install dependencies
+RUN pip install --upgrade pip 
+COPY ./requirements.txt /usr/src/app
+RUN pip install -r requirements.txt
 
-COPY . /app
-WORKDIR /app
-
-# Execute os comandos para migrar o banco de dados e criar o superusuário
-RUN python manage.py migrate && \
-    echo "from django.contrib.auth import get_user_model; User = get_user_model(); \
-    User.objects.filter(username='${DJANGO_SUPERUSER_USERNAME}').exists() or \
-    User.objects.create_superuser('${DJANGO_SUPERUSER_USERNAME}', '${DJANGO_SUPERUSER_EMAIL}', '${DJANGO_SUPERUSER_PASSWORD}')" \
-    | python manage.py shell
-
+# copy project
+COPY . /usr/src/app
 
 EXPOSE 8000
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

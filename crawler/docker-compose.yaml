@@ -1,44 +1,6 @@
 version: '3'
 
 services:
-  server:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["python", "server.py"]
-    environment:
-      DB_HOST: 'database'
-    ports:
-      - 5000:5000
-    volumes:
-      - data-umode:/app/data
-    depends_on:
-      - redis
-      - database
-    env_file:
-      - .env
-    networks:
-      mynetwork:
-
-      
-  celery:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
-    volumes:
-      - data-umode:/app/data
-    depends_on:
-      - redis
-      - database
-    environment:
-      - CELERY_BROKER_URL=redis://redis:6379/0
-      - DB_HOST=database
-    env_file:
-      - .env
-    networks:
-      mynetwork:
-
   redis:
     image: redis
     ports:
