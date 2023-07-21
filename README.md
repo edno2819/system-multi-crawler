@@ -52,3 +52,6 @@ No admin você pode clicar em "Ir para o Flowers" para abrir a página de acompa
 <p align="center">
 <img style="border-radius: 5px"  src="./images/system.png" alt="Intro">
 </p>
+
+
+[![SonarCloud](https://sonarcloud.io/images/project_badges/sonarcloud-white.svg)](https://sonarcloud.io/summary/new_code?id=edno2819_ProjetoCrawler)
