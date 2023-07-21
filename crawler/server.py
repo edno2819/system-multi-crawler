@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
-from tasks import runSite
+from tasks import run_site
 
 load_dotenv()
 
@@ -15,7 +15,7 @@ def get_sites():
         return jsonify({'error': 'O corpo da requisição deve conter uma lista de sites'}), 400
 
     for site in sites:
-        runSite.delay(site)
+        run_site.delay(site)
 
     return jsonify({'message': 'Sites processados com sucesso!'}), 200
 

@@ -32,7 +32,7 @@ services:
     expose:
       - '3306'
     volumes:
-      - data-umode:/var/lib/mysql
+      - data-admin:/var/lib/mysql
     env_file:
       - .env
     networks:
@@ -42,7 +42,7 @@ networks:
   mynetwork:
 
 volumes:
-  data-umode:
+  data-admin:
     driver: local
     driver_opts:
       type: none

@@ -1,60 +1,69 @@
+"""
+Módulo para gerenciar tarefas
+"""
+import os
+import logging
+import traceback
+import pprint
+from celery import Celery
+from dotenv import load_dotenv
+
 from src.drivesCrawler.RequestController import RequestController
 from src.database.main import DatabaseManager
 from src.utils import loadModules
 from src.utils import config
 from src.utils import discordAlert
 
-from dotenv import load_dotenv
-from celery import Celery
-import traceback
-import logging
-import pprint
-import os
-
-
 load_dotenv()
 
 config.setup_logging()
-log = logging.getLogger("tasks")
+LOG = logging.getLogger("tasks")
 
-celery_app = Celery(broker=os.getenv("CELERY_BROKER_URL", f"redis://redis:6379/0"))
+CELERY_APP = Celery(broker=os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0"))
 
-database = DatabaseManager()
+DATABASE = DatabaseManager()
 
 
-@celery_app.task
-def runSite(site: str):
+@CELERY_APP.task
+def run_site(site: str):
+    """
+    Run the crawler for a specific site.
+
+    Args:
+        site: The name of the site to crawl.
+
+    Returns:
+        The results of the crawl.
+    """
     try:
-        ClassBrand: RequestController = loadModules.load_class_brand(site)
+        class_brand: RequestController = loadModules.load_class_brand(site)
         config_brand = loadModules.load_config_brand(site)
 
-        site_item = database.getSiteByName(site)
+        site_item = DATABASE.get_site_by_name(site)
 
-        if not ClassBrand or not config_brand or not site_item:
+        if not class_brand or not config_brand or not site_item:
             return "Module not found"
 
-        instance = ClassBrand(database, config_brand, site_item.id)
+        instance = class_brand(DATABASE, config_brand, site_item.id)
         instance.run()
         result = instance.getReport()
 
         # using result
-        log.info(result)
-        database.saveCrawler(result)
+        LOG.info(result)
+        DATABASE.save_crawler(result)
         result["errors"] = len(result["errors"])
         result_formated = pprint.pformat(result, indent=4, width=1, sort_dicts=False)
-        discordAlert.sendMsg(f"Resultado do Crawler: \n{result_formated}")
-        database.db_manager.close()
+        discordAlert.send_msg(f"Resultado do Crawler: \n{result_formated}")
+        DATABASE.db_manager.close()
 
         return result
-    
-    except Exception as e:
-        error_message = str(e)
+    except Exception as exc:
+        error_message = str(exc)
         error_traceback = traceback.format_exc()
 
-        log.error(
-            "Menssagem de erro: \n",
+        LOG.error(
+            "Menssagem de erro: %s\nTraceback: %s",
             error_message,
-            "\nTRaceback teste: \n",
             error_traceback,
         )
         return error_message

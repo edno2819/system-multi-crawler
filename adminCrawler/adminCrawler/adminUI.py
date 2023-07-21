@@ -1,10 +1,10 @@
 JAZZMIN_SETTINGS = {
     # title of the window (Will default to current_admin_site.site_title if absent or None)
-    "site_title": "Umode Crawler",
+    "site_title": "Admin Crawler",
     # Title on the login screen (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_header": "Umode Crawler",
+    "site_header": "Admin Crawler",
     # Title on the brand (19 chars max) (defaults to current_admin_site.site_header if absent or None)
-    "site_brand": "Umode Crawler",
+    "site_brand": "Admin Crawler",
     # "site_logo": "imagens/logo-umode-azul.webp",
     # Logo to use for your site, must be present in static files, used for login form logo (defaults to site_logo)
     "login_logo": "imagens/logo-umode-azul.webp",

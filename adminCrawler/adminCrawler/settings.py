@@ -1,5 +1,5 @@
 from pathlib import Path
-from umodeCrawler.adminUI import *
+from adminCrawler import adminUI
 from dotenv import load_dotenv
 import os
 
@@ -62,7 +62,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "umodeCrawler.urls"
+ROOT_URLCONF = "adminCrawler.urls"
 
 TEMPLATES = [
     {
@@ -80,7 +80,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "umodeCrawler.wsgi.application"
+WSGI_APPLICATION = "adminCrawler.wsgi.application"
 
 
 # Database
@@ -127,8 +127,8 @@ USE_I18N = True
 USE_TZ = True
 
 # admin ui config jazmin
-JAZZMIN_SETTINGS = JAZZMIN_SETTINGS
-JAZZMIN_UI_TWEAKS = JAZZMIN_UI_TWEAKS
+JAZZMIN_SETTINGS = adminUI.JAZZMIN_SETTINGS
+JAZZMIN_UI_TWEAKS = adminUI.JAZZMIN_UI_TWEAKS
 
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

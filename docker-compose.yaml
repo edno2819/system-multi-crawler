@@ -12,7 +12,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - data-umode:/app/data
+      - data-crawler:/app/data
     depends_on:
       - redis
       - database
@@ -28,7 +28,7 @@ services:
     command: ["celery", "-A", "tasks", "worker", "--loglevel=info"]
     restart: on-failure
     volumes:
-      - data-umode:/app/data
+      - data-crawler:/app/data
     depends_on:
       - redis
       - database
@@ -78,7 +78,7 @@ services:
       mynetwork:
   
   web:
-    build: ./umodeCrawler
+    build: ./adminCrawler
     command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - .:/app
@@ -87,7 +87,7 @@ services:
     depends_on:
       - database
     env_file:
-      - ./umodeCrawler/.env
+      - ./adminCrawler/.env
     networks:
       mynetwork:
     restart: 
@@ -97,7 +97,7 @@ networks:
   mynetwork:
 
 volumes:
-  data-umode:
+  data-crawler:
     driver: local
     driver_opts:
       type: none

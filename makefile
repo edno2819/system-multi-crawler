@@ -4,10 +4,10 @@ requirements:
     pip freeze > requirements.txt
 
 docker-build:
-    docker build -t umodecrawler .
+    docker build -t admincrawler .
 
 docker-run:
-    docker run -it --rm --name my-running-app umodecrawler
+    docker run -it --rm --name my-running-app admincrawler
 
 docker-compose-up:
     docker-compose up --build -d

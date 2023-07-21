@@ -1,6 +1,6 @@
 from src.drivesCrawler.RequestController import RequestController
 from src.database.main import DatabaseManager
-from src.database.models import *
+from src.database import models
 from datetime import datetime
 import json
 
@@ -17,7 +17,7 @@ class Arezzo(RequestController):
         self.size = 30
         self.max_itens = 600 * self.size
 
-    def getUrl(self, category: str, page: int):
+    def get_url(self, category: str, page: int):
         base_api = "/arezzocoocc/v2/arezzo/products"
         url = f"/search?category={category}&currentPage={page}&pageSize={self.size}&fields=FULL&storeFinder=false"
         return self.BASE_URL + base_api + url
@@ -33,7 +33,7 @@ class Arezzo(RequestController):
             self.report.add_categories()
 
             for page in range(0, self.max_itens):
-                url = self.getUrl(category, page)
+                url = self.get_url(category, page)
                 res = self.request.send_request(url)
                 self.saveJson(res.content, self.folder_path)
                 data = res.json()
@@ -50,47 +50,47 @@ class Arezzo(RequestController):
                         self.current_path_product = self.createFolderProduct(
                             product.get("name")
                         )
-                        self.getProducts(self.current_url, self.current_path_product)
+                        self.get_products(self.current_url, self.current_path_product)
                         self.report.add_products()
                     except Exception as e:
                         self.getError(e, url)
 
-    def getProducts(self, url: str, path_product: str):
+    def get_products(self, url: str, path_product: str):
         res = self.request.send_request(url)
-        if res.status_code == 200:
-            if (
-                "Content-Type" in res.headers
-                and "text/html" in res.headers["Content-Type"]
-            ):
-                self.crawler_date = datetime.now()
-                self.saveHTML(res.content, path_product)
-                html_soup = self.strToHtmlSoup(res.content)
-                self.getInfosByHtml(html_soup)
-                return
+        if (
+            res.status_code == 200
+            and "Content-Type" in res.headers
+            and "text/html" in res.headers["Content-Type"]
+        ):
+            self.crawler_date = datetime.now()
+            self.saveHTML(res.content, path_product)
+            html_soup = self.strToHtmlSoup(res.content)
+            self.get_infos_by_html(html_soup)
+            return
 
         self.log.info(f"Response in {url} not found!")
 
-    def getInfosProduct(self, html):
+    def get_infos_product(self, html):
         script_tag = html.find("script", id="schema-tags")
         json_data = json.loads(script_tag.string)
         return json_data
 
-    def getInfosByHtml(self, html):
-        data = self.getInfosProduct(html)
+    def get_infos_by_html(self, html):
+        data = self.get_infos_product(html)
         self.createItensFromJson(data)
 
     def createItensFromJson(self, data):
-        product = self.saveProduct(data)
-        self.getImage(data, product.id)
-        self.getPrice(data, product.id)
+        product = self.save_product(data)
+        self.get_image(data, product.id)
+        self.get_price(data, product.id)
         if self.current_category == ["SAPATOS"]:
-            self.getSizeShoe(data, product.id)
+            self.get_size_shoe(data, product.id)
         else:
-            self.getSizeBag(data, product.id)
+            self.get_size_bag(data, product.id)
 
         self.database.session.commit()
 
-    def saveProduct(self, data):
+    def save_product(self, data):
         name = data.get("name")
         site_id = self.site_id
         sku = data.get("sku")
@@ -113,7 +113,7 @@ class Arezzo(RequestController):
 
         return product
 
-    def setAttribute(self, data, product_id):
+    def set_attribute(self, data, product_id):
         attributes = data.get("attributes")
         if attributes:
             for attribute_data in attributes:
@@ -121,27 +121,29 @@ class Arezzo(RequestController):
                 score = attribute_data.get("score")
 
                 attribute = (
-                    self.database.session.query(Attribute)
+                    self.database.session.query(models.Attribute)
                     .filter_by(name=attribute_name)
                     .first()
                 )
                 if not attribute:
-                    attribute = Attribute(name=attribute_name)
+                    attribute = models.Attribute(name=attribute_name)
                     self.database.session.add(attribute)
 
-                product_attribute = ProductAttributes(
+                product_attribute = models.ProductAttributes(
                     attribute_id=attribute.id, product_id=product_id, score=score
                 )
                 self.database.session.add(product_attribute)
 
-    def getImage(self, data, product_id):
+    def get_image(self, data, product_id):
         image = data.get("image")
         if image:
             self.saveImage(image, self.current_path_product)
-            picture_metadata = PictureMetadata(product_id=product_id, picture_url=image)
+            picture_metadata = models.PictureMetadata(
+                product_id=product_id, picture_url=image
+            )
             self.database.session.add(picture_metadata)
 
-    def getPrice(self, data, product_id):
+    def get_price(self, data, product_id):
         offers = data.get("offers")
         if offers:
             offer = offers[0]
@@ -149,7 +151,7 @@ class Arezzo(RequestController):
             promotional_price = 0  # offer.get("discountPrice").get("value")
             crawled_at = self.crawler_date
 
-            product_price = ProductPrice(
+            product_price = models.ProductPrice(
                 product_id=product_id,
                 price=round(float(price), 3),
                 promotional_price=promotional_price,
@@ -157,7 +159,7 @@ class Arezzo(RequestController):
             )
             self.database.session.add(product_price)
 
-    def getSizeShoe(self, data, product_id):
+    def get_size_shoe(self, data, product_id):
         sizes = data.get("offers")
         if sizes:
             for size_data in sizes:
@@ -167,18 +169,18 @@ class Arezzo(RequestController):
                 else:
                     stock = 10
                 crawled_at = self.crawler_date
-                product_size = ProductSizes(
+                product_size = models.ProductSizes(
                     product_id=product_id, size=size, stock=stock, crawled_at=crawled_at
                 )
                 self.database.session.add(product_size)
 
-    def getSizeBag(self, data, product_id):
+    def get_size_bag(self, data, product_id):
         sizes = data.get("offers")
         if sizes and len(sizes) > 1:
             size = 1
             stock = sizes[1].get("offerCount", 0)
             crawled_at = self.crawler_date
-            product_size = ProductSizes(
+            product_size = models.ProductSizes(
                 product_id=product_id, size=size, stock=stock, crawled_at=crawled_at
             )
             self.database.session.add(product_size)

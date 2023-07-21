@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from src.database.models import *
+from src.database import models
 import logging
 import os
 
@@ -18,10 +18,10 @@ class SqlAlchemyInterface:
     def init_db(self):
         self.Base.metadata.create_all(bind=self.engine)
 
-    def addItem(self, instanceTable):
+    def add_item(self, instanceTable):
         self.session.add(instanceTable)
 
-    def cleanSession(self):
+    def clean_session(self):
         """Limpa tudo que está na sessão"""
         self.session.flush()
 
@@ -48,26 +48,26 @@ class DatabaseManager:
         self.db_manager = SqlAlchemyInterface(db_url)
         self.session = self.db_manager.session
 
-    def getSiteByName(self, name):
-        result = self.db_manager.session.query(Site).filter_by(name=name).first()
+    def get_site_by_name(self, name):
+        result = self.db_manager.session.query(models.Site).filter_by(name=name).first()
         return result
 
     def create_category_if_not_exists(self, name):
-        category = self.session.query(Category).filter_by(name=name).first()
+        category = self.session.query(models.Category).filter_by(name=name).first()
         if not category:
-            category = Category(name=name)
+            category = models.Category(name=name)
             self.session.add(category)
             self.session.commit()
         return category
 
     def create_subcategory_if_not_exists(self, name, category_id):
         subcategory = (
-            self.session.query(SubCategory)
+            self.session.query(models.SubCategory)
             .filter_by(name=name, category_id=category_id)
             .first()
         )
         if not subcategory:
-            subcategory = SubCategory(name=name, category_id=category_id)
+            subcategory = models.SubCategory(name=name, category_id=category_id)
             self.session.add(subcategory)
             self.session.commit()
         return subcategory
@@ -84,7 +84,7 @@ class DatabaseManager:
         color=None,
         metadata=None,
     ):
-        product = Product(
+        product = models.Product(
             name=name,
             site_id=site_id,
             sku=sku,
@@ -99,8 +99,8 @@ class DatabaseManager:
         self.session.commit()
         return product
 
-    def saveCrawler(self, crawler: dict):
-        new_crawler = Crawler(
+    def save_crawler(self, crawler: dict):
+        new_crawler = models.Crawler(
             site_id=crawler["site_id"],
             started_at=crawler["started_at"],
             finished_at=crawler["finished_at"],
@@ -108,5 +108,5 @@ class DatabaseManager:
             products=crawler["products"],
             errors=crawler["errors"],
         )
-        self.db_manager.addItem(new_crawler)
+        self.db_manager.add_item(new_crawler)
         self.db_manager.commit()

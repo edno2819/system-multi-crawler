@@ -6,5 +6,5 @@ log = logging.getLogger(__name__)
 
 webhook = SyncWebhook.from_url(os.getenv("WEBHOOK_URL"))
 
-def sendMsg(message):
+def send_msg(message):
     webhook.send(message)
